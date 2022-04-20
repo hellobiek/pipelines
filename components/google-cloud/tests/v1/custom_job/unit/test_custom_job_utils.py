@@ -617,7 +617,8 @@ implementation:
                     '"{{$.outputs.parameters[\'output_value\'].output_file}}"]},'
                     ' "disk_spec": {"boot_disk_type": "pd-ssd", '
                     '"boot_disk_size_gb": 100}}], "reserved_ip_ranges": '
-                    '["1.0.0.0", "2.0.0.0"], "service_account": '
+                    '"{{$.inputs.parameters[\'reserved_ip_ranges\']}}", '
+                    '"service_account": '
                     '"{{$.inputs.parameters[\'service_account\']}}", '
                     '"network": "{{$.inputs.parameters[\'network\']}}", '
                     '"tensorboard": '
@@ -636,7 +637,8 @@ implementation:
         }
     }
     custom_job_spec = utils.create_custom_training_job_op_from_component(
-        component_factory_function, reserved_ip_ranges=['1.0.0.0', '2.0.0.0'])
+        component_factory_function,
+        reserved_ip_ranges= "[]")
 
     self.assertDictContainsSubset(
         subset=expected_sub_results,

@@ -236,7 +236,14 @@ def create_custom_training_job_op_from_component(
   if enable_web_access:
     job_spec['enable_web_access'] = enable_web_access
   if reserved_ip_ranges:
-    job_spec['reserved_ip_ranges'] = reserved_ip_ranges
+    job_spec[
+        'reserved_ip_ranges'] = "{{$.inputs.parameters['reserved_ip_ranges']}}"
+    input_specs.append(
+        structures.InputSpec(
+            name='reserved_ip_ranges',
+            type='JsonArray',
+            optional=True,
+            default=reserved_ip_ranges),)
   if nfs_mounts:
     job_spec['nfs_mounts'] = nfs_mounts
   if encryption_spec_key_name:
@@ -267,7 +274,20 @@ def create_custom_training_job_op_from_component(
       'display_name': display_name or component_spec.component_spec.name,
       'job_spec': job_spec
   }
-
+  # Construct the Json payload, Any JsonArray field needs to be directly
+  # inserted into the payload to avoid double serialization since KPF 1.x always
+  # runs json.dumps() on JsonArrays
+  raw_json_payload = json.dumps(custom_job_payload)
+  reserved_ip_range_string = "\"{{$.inputs.parameters['reserved_ip_ranges']}}\""
+  reserved_ip_range_offset = raw_json_payload.find(reserved_ip_range_string)
+  json_payload = {
+      'concat': [
+          raw_json_payload[:reserved_ip_range_offset], {
+              'inputValue': 'reserved_ip_ranges'
+          }, raw_json_payload[reserved_ip_range_offset +
+                              len(reserved_ip_range_string):]
+      ]
+  },
   custom_job_component_spec = structures.ComponentSpec(
       name=component_spec.component_spec.name,
       inputs=input_specs + [
@@ -304,7 +324,7 @@ def create_custom_training_job_op_from_component(
                   '--type',
                   'CustomJob',
                   '--payload',
-                  json.dumps(custom_job_payload),
+                  json_payload,
                   '--project',
                   structures.InputValuePlaceholder(input_name='project'),
                   '--location',

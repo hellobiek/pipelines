@@ -416,7 +416,7 @@ class UtilsTest(unittest.TestCase):
         }],
         2,
         1,
-        tabnet=True)
+        'tabnet')
     self.assertEqual(
         parameter_values, {
             'project':
@@ -541,22 +541,10 @@ class UtilsTest(unittest.TestCase):
                 '{\\"csv_data_source\\": {\\"csv_filenames\\": [\\"gs://foo/bar.csv\\"]}}',
             'learning_rate':
                 0.01,
-            'optimizer_type':
-                'adam',
             'max_steps':
                 -1,
             'max_train_secs':
                 -1,
-            'l1_regularization_strength':
-                0,
-            'l2_regularization_strength':
-                0,
-            'l2_shrinkage_regularization_strength':
-                0,
-            'beta_1':
-                0.9,
-            'beta_2':
-                0.999,
             'large_category_dim':
                 1,
             'large_category_thresh':
